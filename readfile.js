@@ -20,6 +20,7 @@ const readdir = (dirname) => {
 const headerMapping = {
     'phone': 'Телефон',
     'city': 'Місто',
+    'street': 'Вулиця',
     'building': 'Будинок',
     'flat': 'Квартира',
     'name': 'Імя',
@@ -85,10 +86,10 @@ const main = async () => {
 
     XLSX.utils.book_append_sheet(newWorkbook, newSheet, 'joined');
 
+    const date = new Date()
+    const dateString = (date).toDateString().split(" ").join("_") + "_" + date.getUTCMilliseconds()
 
-    const date = (new Date()).toDateString().split(" ").join("_")
-
-    XLSX.writeFile(newWorkbook, `${currDir}/joinedExcel_${date}.xlsx`);
+    XLSX.writeFile(newWorkbook, `${currDir}/joinedExcel_${dateString}.xlsx`);
 
 }
 
