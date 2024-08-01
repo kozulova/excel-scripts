@@ -29,12 +29,15 @@ const headerMapping = {
 
 };
 
-const formatRecord = (data, phone) => {
+const formatRecord = (data, phone, i) => {
     const allRecordsWithPhone = data.filter(item => normizePhone(item.phone) === phone || item?.phones?.split(',').map(normizePhone)?.includes(phone) || normizePhone(item.phone2) === phone)
 
     const address = allRecordsWithPhone.find(item => item?.address)?.address
     const splittedAddress = address ? address.split(',') : []
 
+    if (i % 5000 === 0) {
+        console.log(i, '5000 formatted')
+    }
 
     return {
         phone,
@@ -66,6 +69,7 @@ const normizePhone = phone => {
 }
 
 const filterUniquePhone = (data) => {
+    console.log('Filtering Unique data length ' + data.length)
     const phones = data.map(item => {
         return item?.phones?.split(/,\s*/)
     }).flat().concat(data.map(item => item.phone).concat(data.map(item => item.phone1))).filter(phone => phone !== undefined)
@@ -76,11 +80,17 @@ const filterUniquePhone = (data) => {
 
     const uniquePhones = Array.from(new Set(addBeginToNumber))
 
-    return uniquePhones.map(phone => formatRecord(data, phone))
+    console.log('uniquePhones ' + uniquePhones.length)
+
+    return uniquePhones.map((phone, i) => formatRecord(data, phone, i))
 
 }
 
 const main = async () => {
+    console.time("Execution Time");
+    const start = performance.now();
+    console.log(start, 'start')
+
     const filenames = await readdir(currDir)
 
     const data = []
@@ -117,6 +127,10 @@ const main = async () => {
 
     XLSX.writeFile(newWorkbook, `${currDir}/joinedExcel_${dateString}.xlsx`);
 
+    console.time("Execution Time2");
+
+    const end = performance.now();
+    console.log(`Execution time: ${end - start} milliseconds`);
 }
 
 main()
