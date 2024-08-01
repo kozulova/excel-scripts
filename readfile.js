@@ -39,6 +39,7 @@ const formatRecord = (data, phone, i) => {
         console.log(i, '5000 formatted')
     }
 
+
     return {
         phone,
         city: allRecordsWithPhone.find(item => item.tarif !== '')?.city || splittedAddress[0] || '',
@@ -68,23 +69,87 @@ const normizePhone = phone => {
     return '+380' + normPhone
 }
 
-const filterUniquePhone = (data) => {
-    console.log('Filtering Unique data length ' + data.length)
-    const phones = data.map(item => {
-        return item?.phones?.split(/,\s*/)
-    }).flat().concat(data.map(item => item.phone).concat(data.map(item => item.phone1))).filter(phone => phone !== undefined)
+
+const createRecordMap = (data) => {
+
+    const mappedData = new Map()
+    for (record of data) {
+
+        if (record.phones) {
+
+            const splittedPhones = record?.phones?.split(/,\s*/).flat()
+            for (const phone of splittedPhones) {
+                const normPhone = normizePhone(phone)
+                if (mappedData.has(normPhone)) {
+                    mappedData.set(
+                        normPhone, [record, ...mappedData.get(normPhone)]
+                    )
+                } else {
+                    mappedData.set(
+                        normPhone, [record]
+                    )
+                }
+
+            }
+
+        }
+        if (record.phone) {
+            const normPhone = normizePhone(record.phone)
+            if (mappedData.has(normPhone)) {
+                mappedData.set(
+                    normPhone, [record, ...mappedData.get(normPhone)]
+                )
+            } else {
+                mappedData.set(
+                    normPhone, [record]
+                )
+            }
+        }
+
+        if (record.phone1) {
+            const normPhone = normizePhone(record.phone)
+            if (mappedData.has(normPhone)) {
+                mappedData.set(
+                    normPhone, [record, ...mappedData.get(normPhone)]
+                )
+            } else {
+                mappedData.set(
+                    normPhone, [record]
+                )
+            }
+        }
 
 
-    const addBeginToNumber = phones.map(normizePhone)
+    }
 
-
-    const uniquePhones = Array.from(new Set(addBeginToNumber))
-
-    console.log('uniquePhones ' + uniquePhones.length)
-
-    return uniquePhones.map((phone, i) => formatRecord(data, phone, i))
-
+    return mappedData
 }
+
+const formatDataFromMap = (myMap) => {
+    const reformattedArray = []
+
+    for (const [key, value] of myMap) {
+
+        const address = value.find(item => item?.address)?.address
+        const splittedAddress = address ? address.split(',') : []
+
+        reformattedArray.push({
+            phone: key,
+            city: value.find(item => item.city !== '')?.city || splittedAddress[0] || '',
+            street: value.find(item => item.street !== '')?.street || splittedAddress[1] || '',
+            building: value.find(item => item.building !== '')?.building || splittedAddress[2] || '',
+            flat: value.find(item => item.flat !== '')?.flat || splittedAddress[3] || '',
+            name: value.find(item => item.name !== '')?.name || '',
+            tarif: value.find(item => item.tarif !== '')?.tarif || '',
+            status: value.find(item => item.status !== '')?.status || '',
+        })
+    }
+
+    return reformattedArray
+}
+
+
+
 
 const main = async () => {
     console.time("Execution Time");
@@ -100,23 +165,20 @@ const main = async () => {
         var workbook = XLSX.readFile(currFilePath);
         const parsedJSON = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: '' })
         console.log(parsedJSON.length, `Count of Parsed data from ${filenames[i]}`)
+
         data.push(...parsedJSON);
 
     }
 
+    const recordMap = createRecordMap(data)
 
-    const uniquePhones = filterUniquePhone(data)
 
-    /*     const updatedData = uniquePhone.map(row => {
-            let newRow = {};
-            for (let oldKey in row) {
-                const newKey = headerMapping[oldKey] || oldKey;
-                newRow[newKey] = row[oldKey];
-            }
-            return newRow;
-        }); */
 
-    const newSheet = XLSX.utils.json_to_sheet(uniquePhones);
+    const reFormatted = formatDataFromMap(recordMap)
+
+
+
+    const newSheet = XLSX.utils.json_to_sheet(reFormatted);
 
     const newWorkbook = XLSX.utils.book_new();
 
