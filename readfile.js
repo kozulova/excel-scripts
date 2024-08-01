@@ -50,6 +50,10 @@ const formatRecord = (data, phone) => {
 
 const normizePhone = phone => {
     const normPhone = phone?.toString().trim()
+    if (normPhone?.startsWith('+380')) {
+        return normPhone
+    }
+
     if (normPhone?.startsWith('38')) {
         return '+' + normPhone;
     }
@@ -58,7 +62,7 @@ const normizePhone = phone => {
         return '+38' + normPhone;
     }
 
-    return normPhone
+    return '+380' + normPhone
 }
 
 const filterUniquePhone = (data) => {
