@@ -44,9 +44,9 @@ const formatRecord = (data, phone) => {
 }
 
 const filterUniquePhone = (data) => {
-    const phones = Array.from(new Set(data.map(item => {
+    const phones = data.map(item => {
         return item?.phones?.split(/,\s*/)
-    }).flat().concat(data.map(item => item.phone).concat(data.map(item => item.phone1)))))
+    }).flat().concat(data.map(item => item.phone).concat(data.map(item => item.phone1)))
 
 
     const uniquePhones = Array.from(new Set(phones))
@@ -69,18 +69,18 @@ const main = async () => {
 
     }
 
-    const uniquePhone = filterUniquePhone(data)
+    const uniquePhones = filterUniquePhone(data)
 
-    const updatedData = uniquePhone.map(row => {
-        let newRow = {};
-        for (let oldKey in row) {
-            const newKey = headerMapping[oldKey] || oldKey;
-            newRow[newKey] = row[oldKey];
-        }
-        return newRow;
-    });
+    /*     const updatedData = uniquePhone.map(row => {
+            let newRow = {};
+            for (let oldKey in row) {
+                const newKey = headerMapping[oldKey] || oldKey;
+                newRow[newKey] = row[oldKey];
+            }
+            return newRow;
+        }); */
 
-    const newSheet = XLSX.utils.json_to_sheet(updatedData);
+    const newSheet = XLSX.utils.json_to_sheet(uniquePhones);
 
     const newWorkbook = XLSX.utils.book_new();
 
