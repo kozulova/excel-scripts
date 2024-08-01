@@ -30,26 +30,47 @@ const headerMapping = {
 };
 
 const formatRecord = (data, phone) => {
-    const allRecordsWithPhone = data.filter(item => item.phone === phone || item?.phones?.includes(phone) || item.phone2 === phone)
+    const allRecordsWithPhone = data.filter(item => normizePhone(item.phone) === phone || item?.phones?.split(',').map(normizePhone)?.includes(phone) || normizePhone(item.phone2) === phone)
+
+    const address = allRecordsWithPhone.find(item => item?.address)?.address
+    const splittedAddress = address ? address.split(',') : []
+
+
     return {
         phone,
-        city: allRecordsWithPhone.find(item => item.tarif !== '')?.city || '',
-        street: allRecordsWithPhone.find(item => item.tarif !== '')?.street || '',
-        building: allRecordsWithPhone.find(item => item.tarif !== '')?.building || '',
-        flat: allRecordsWithPhone.find(item => item.tarif !== '')?.flat || '',
+        city: allRecordsWithPhone.find(item => item.tarif !== '')?.city || splittedAddress[0] || '',
+        street: allRecordsWithPhone.find(item => item.tarif !== '')?.street || splittedAddress[1] || '',
+        building: allRecordsWithPhone.find(item => item.tarif !== '')?.building || splittedAddress[2] || '',
+        flat: allRecordsWithPhone.find(item => item.tarif !== '')?.flat || splittedAddress[3] || '',
         name: allRecordsWithPhone.find(item => item.tarif !== '')?.name || '',
         tarif: allRecordsWithPhone.find(item => item.tarif !== '')?.tarif || '',
         status: allRecordsWithPhone.find(item => item.status !== '')?.status || '',
     }
 }
 
+const normizePhone = phone => {
+    const normPhone = phone?.toString().trim()
+    if (normPhone?.startsWith('38')) {
+        return '+' + normPhone;
+    }
+
+    if (normPhone?.startsWith('0')) {
+        return '+38' + normPhone;
+    }
+
+    return normPhone
+}
+
 const filterUniquePhone = (data) => {
     const phones = data.map(item => {
         return item?.phones?.split(/,\s*/)
-    }).flat().concat(data.map(item => item.phone).concat(data.map(item => item.phone1)))
+    }).flat().concat(data.map(item => item.phone).concat(data.map(item => item.phone1))).filter(phone => phone !== undefined)
 
 
-    const uniquePhones = Array.from(new Set(phones))
+    const addBeginToNumber = phones.map(normizePhone)
+
+
+    const uniquePhones = Array.from(new Set(addBeginToNumber))
 
     return uniquePhones.map(phone => formatRecord(data, phone))
 
@@ -68,6 +89,7 @@ const main = async () => {
         data.push(...parsedJSON);
 
     }
+
 
     const uniquePhones = filterUniquePhone(data)
 
