@@ -133,16 +133,17 @@ const formatDataFromMap = (myMap) => {
         const address = value.find(item => item?.address)?.address
         const splittedAddress = address ? address.split(',') : []
 
+
         reformattedArray.push({
             phone: key,
-            city: value.find(item => item.city !== '')?.city || splittedAddress[0] || '',
-            street: value.find(item => item.street !== '')?.street || splittedAddress[1] || '',
-            building: value.find(item => item.building !== '')?.building || splittedAddress[2] || '',
-            flat: value.find(item => item.flat !== '')?.flat || splittedAddress[3] || '',
-            name: value.find(item => item.name !== '')?.name || '',
-            tarif: value.find(item => item.tarif !== '')?.tarif || '',
-            status: value.find(item => item.status !== '')?.status || '',
-            filename: JSON.stringify(value.map(v => v.filename))
+            city: value.find(item => item.city && item.city !== '')?.city || splittedAddress[0] || '',
+            street: value.find(item => item.street && item.street !== '')?.street || splittedAddress[1] || '',
+            building: value.find(item => item.building && item.building !== '')?.building || splittedAddress[2] || '',
+            flat: value.find(item => item.flat && item.flat !== '')?.flat || splittedAddress[3] || '',
+            name: value.find(item => item.name && item.name !== '')?.name || '',
+            tarif: value.find(item => item.tarif && item.tarif !== '')?.tarif || '',
+            status: value.find(item => item.status && item.status !== '')?.status || '',
+            filename: JSON.stringify(value.map(v => v.filename)),
         })
     }
 
