@@ -132,6 +132,17 @@ const formatDataFromMap = (myMap) => {
 
         const address = value.find(item => item?.address)?.address
         const splittedAddress = address ? address.split(',') : []
+        const addresses = Array.from(new Set(value.map(v => {
+
+            if (v.street) {
+                return [v?.street, v?.building, v?.flat].join(', ')
+            }
+            if (splittedAddress[0] && splittedAddress[0]) {
+                return splittedAddress.join(', ')
+            }
+            return ''
+
+        })))
 
 
         reformattedArray.push({
@@ -144,15 +155,20 @@ const formatDataFromMap = (myMap) => {
             tarif: value.find(item => item.tarif && item.tarif !== '')?.tarif || '',
             status: value.find(item => item.status && item.status !== '')?.status || '',
             filename: JSON.stringify(value.map(v => v.filename)),
-            address: JSON.stringify(value.map(v => {
-                if (v.street) {
-                    return [v?.street, v?.building, v?.flat].join(', ')
-                }
-                if (splittedAddress[0]) {
-                    return splittedAddress.join(', ')
-                }
-                return ''
-            }))
+            address1: addresses[0] || '',
+            address2: addresses[1] || '',
+            address3: addresses[2] || '',
+            address4: addresses[3] || '',
+            /*   addresses,
+              /*  address: JSON.stringify(value.map(v => {
+                   if (v.street) {
+                       return [v?.street, v?.building, v?.flat].join(', ')
+                   }
+                   if (splittedAddress[0] && splittedAddress[0] !== v.street) {
+                       return splittedAddress.join(', ')
+                   }
+                   return ''
+               })) */
 
         })
     }
