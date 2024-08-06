@@ -159,17 +159,6 @@ const formatDataFromMap = (myMap) => {
             address2: addresses[1] || '',
             address3: addresses[2] || '',
             address4: addresses[3] || '',
-            /*   addresses,
-              /*  address: JSON.stringify(value.map(v => {
-                   if (v.street) {
-                       return [v?.street, v?.building, v?.flat].join(', ')
-                   }
-                   if (splittedAddress[0] && splittedAddress[0] !== v.street) {
-                       return splittedAddress.join(', ')
-                   }
-                   return ''
-               })) */
-
         })
     }
 
