@@ -142,6 +142,7 @@ const formatDataFromMap = (myMap) => {
             name: value.find(item => item.name !== '')?.name || '',
             tarif: value.find(item => item.tarif !== '')?.tarif || '',
             status: value.find(item => item.status !== '')?.status || '',
+            filename: JSON.stringify(value.map(v => v.filename))
         })
     }
 
@@ -165,13 +166,17 @@ const main = async () => {
         var workbook = XLSX.readFile(currFilePath);
         const parsedJSON = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: '' })
         console.log(parsedJSON.length, `Count of Parsed data from ${filenames[i]}`)
-
-        data.push(...parsedJSON);
+        const dataWithFileName = parsedJSON.map(data => {
+            return {
+                ...data,
+                filename: filenames[i]
+            }
+        })
+        data.push(...dataWithFileName);
 
     }
 
     const recordMap = createRecordMap(data)
-
 
 
     const reFormatted = formatDataFromMap(recordMap)
