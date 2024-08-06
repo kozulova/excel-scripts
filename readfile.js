@@ -144,6 +144,16 @@ const formatDataFromMap = (myMap) => {
             tarif: value.find(item => item.tarif && item.tarif !== '')?.tarif || '',
             status: value.find(item => item.status && item.status !== '')?.status || '',
             filename: JSON.stringify(value.map(v => v.filename)),
+            address: JSON.stringify(value.map(v => {
+                if (v.street) {
+                    return [v?.street, v?.building, v?.flat].join(', ')
+                }
+                if (splittedAddress[0]) {
+                    return splittedAddress.join(', ')
+                }
+                return ''
+            }))
+
         })
     }
 
