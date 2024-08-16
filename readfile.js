@@ -144,6 +144,11 @@ const formatDataFromMap = (myMap) => {
 
         })))
 
+        const firstName = value.find(item => item.firstname && item.firstname !== '')?.firstname || ''
+        const lastName = value.find(item => item.lastname && item.lastname !== '')?.lastname || ''
+        const fathername = value.find(item => item.fathername && item.fathername !== '')?.fathername || ''
+
+        const joinedName = firstName || lastName ? firstName + ' ' + lastName + ' ' + fathername : undefined
 
         reformattedArray.push({
             phone: key,
@@ -151,7 +156,7 @@ const formatDataFromMap = (myMap) => {
             street: value.find(item => item.street && item.street !== '')?.street || splittedAddress[1] || '',
             building: value.find(item => item.building && item.building !== '')?.building || splittedAddress[2] || '',
             flat: value.find(item => item.flat && item.flat !== '')?.flat || splittedAddress[3] || '',
-            name: value.find(item => item.name && item.name !== '')?.name || '',
+            name: value.find(item => item.name && item.name !== '')?.name || joinedName || '',
             tarif: value.find(item => item.tarif && item.tarif !== '')?.tarif || '',
             status: value.find(item => item.status && item.status !== '')?.status || '',
             filename: JSON.stringify(value.map(v => v.filename)),
@@ -180,15 +185,19 @@ const main = async () => {
     for (let i = 0; i < filenames.length; i++) {
         let currFilePath = currDir + filenames[i];
         var workbook = XLSX.readFile(currFilePath);
-        const parsedJSON = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: '' })
-        console.log(parsedJSON.length, `Count of Parsed data from ${filenames[i]}`)
-        const dataWithFileName = parsedJSON.map(data => {
-            return {
-                ...data,
-                filename: filenames[i]
-            }
-        })
-        data.push(...dataWithFileName);
+
+        for (const sheet of workbook.SheetNames) {
+
+            const parsedJSON = XLSX.utils.sheet_to_json(workbook.Sheets[sheet], { defval: '' })
+            const dataWithFileName = parsedJSON.map(data => {
+                return {
+                    ...data,
+                    filename: filenames[i]
+                }
+            })
+            data.push(...dataWithFileName);
+            console.log(parsedJSON.length, `Count of Parsed data from ${filenames[i]} sheet - ${sheet}`)
+        }
 
     }
 
@@ -196,7 +205,6 @@ const main = async () => {
 
 
     const reFormatted = formatDataFromMap(recordMap)
-
 
 
     const newSheet = XLSX.utils.json_to_sheet(reFormatted);
