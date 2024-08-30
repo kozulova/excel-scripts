@@ -150,13 +150,6 @@ const formatDataFromMap = (myMap) => {
 
         const joinedName = firstName || lastName ? firstName + ' ' + lastName + ' ' + fathername : undefined
 
-        console.log(value, 'value')
-
-        if (value.find(item => item.status)) {
-            console.log(value, 'value')
-
-        }
-
         reformattedArray.push({
             phone: key,
             city: value.find(item => item.city && item.city !== '')?.city || splittedAddress[0] || '',
