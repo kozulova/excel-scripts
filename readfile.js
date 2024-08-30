@@ -150,6 +150,8 @@ const formatDataFromMap = (myMap) => {
 
         const joinedName = firstName || lastName ? firstName + ' ' + lastName + ' ' + fathername : undefined
 
+        console.log(value, 'value')
+
         if (value.find(item => item.status)) {
             console.log(value, 'value')
 
